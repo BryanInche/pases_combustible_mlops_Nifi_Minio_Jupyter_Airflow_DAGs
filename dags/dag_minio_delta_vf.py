@@ -336,7 +336,7 @@ def preprocess_and_save_delta(ti):
         .getOrCreate()
 
     spark_df = spark.createDataFrame(datos)
-    spark_df.write.format("delta").save(f"s3a://hudbayprocessed2/tabladelta_procesing_hudbay_bryan")
+    spark_df.write.format("delta").mode("overwrite").save(f"s3a://hudbayprocessed2/tabladelta_procesing_hudbay_bryan")
 
 # PASO 2 : Definir el DAG (argumentos basicos)
 # Definir el DAG
