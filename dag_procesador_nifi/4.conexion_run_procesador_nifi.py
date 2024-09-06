@@ -50,6 +50,11 @@ def get_processor_status():
     return processor_status
 
 def start_processor():
+    # Obtiene los detalles del procesador dinámicamente
+    processor_details = get_processor_details(processor_id)
+    client_id = processor_details['revision']['clientId']
+    version = processor_details['revision']['version']
+
     status = get_processor_status()
     run_status = status['processorStatus']['aggregateSnapshot']['runStatus']
     
@@ -62,8 +67,8 @@ def start_processor():
         }
         payload = {
             "revision": {
-                "clientId": "bf3e7e30-0191-1000-93e0-6369f3e1856b",
-                "version": 7,  # Ajusta la versión según corresponda
+                "clientId": client_id,  # Usa el clientId dinámico,
+                "version": version,     # Usa la versión dinámica 
             },
             "component": {
                 "id": processor_id,
@@ -75,6 +80,8 @@ def start_processor():
         print("Procesador iniciado correctamente.")
     else:
         print("El procesador ya está en ejecución.")
+
+
 
 # Definir el DAG de Airflow
 with DAG(
@@ -106,6 +113,7 @@ with DAG(
 
     # Establecer dependencias
     get_status_processor >> get_status_task >> start_processor_task
+
 
 
 
