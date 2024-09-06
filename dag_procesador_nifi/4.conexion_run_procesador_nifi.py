@@ -81,6 +81,38 @@ def start_processor():
     else:
         print("El procesador ya está en ejecución.")
 
+def stop_processor():
+    # Obtiene los detalles del procesador dinámicamente
+    processor_details = get_processor_details(processor_id)
+    client_id = processor_details['revision']['clientId']
+    version = processor_details['revision']['version']
+
+    status = get_processor_status()
+    run_status = status['processorStatus']['aggregateSnapshot']['runStatus']
+    
+    if run_status == 'Running':
+        token = get_token()
+        stop_url = f"{url_nifi_api}/processors/{processor_id}"
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "revision": {
+                "clientId": client_id,  # Usa el clientId dinámico
+                "version": version,     # Usa la versión dinámica
+            },
+            "component": {
+                "id": processor_id,
+                "state": "STOPPED"
+            }
+        }
+        response = requests.put(stop_url, headers=headers, json=payload, verify=False)
+        response.raise_for_status()
+        print("Procesador detenido correctamente.")
+    else:
+        print("El procesador ya está detenido.")
+
 
 
 # Definir el DAG de Airflow
@@ -111,9 +143,13 @@ with DAG(
         python_callable=start_processor,
     )
 
-    # Establecer dependencias
-    get_status_processor >> get_status_task >> start_processor_task
+    stop_task = PythonOperator(
+    task_id='stop_processor',
+    python_callable=stop_processor,
+    )
 
+    # Establecer dependencias
+    get_status_processor >> get_status_task >> start_processor_task >> stop_task
 
 
 
