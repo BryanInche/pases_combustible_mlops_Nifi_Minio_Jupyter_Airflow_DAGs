@@ -128,7 +128,7 @@ with DAG(
     get_status_processor = PythonOperator(
         task_id='get_processor_details',
         python_callable=get_processor_details,
-        op_kwargs={'processor_id': processor_id},
+        op_kwargs={'processor_id': processor_id}, # Le pasamos el input que requiere la funcion
     )
 
     # Tarea para obtener el estado del procesador de NiFi
