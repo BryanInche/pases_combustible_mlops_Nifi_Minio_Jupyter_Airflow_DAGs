@@ -40,3 +40,6 @@ spark_df = spark.createDataFrame(resultado)
 #spark_df2 = spark.createDataFrame(datos).repartition(30)
 
 spark_df.write.format("delta").save("s3a://hudbayprocessed2/tabladelta_datacamion_ciclos")
+
+# Leer la tabla Delta desde MinIO
+delta_df = spark.read.format("delta").load("s3a://hudbayprocessed2/tabladelta_datacamion_ciclos")
